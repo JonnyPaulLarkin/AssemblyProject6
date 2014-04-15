@@ -6,7 +6,7 @@ ASSIST/I Version 2.03, Copyright 1984, BDM Software.                          GR
   LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
 
 000000                                1 COLE6    START
-                                      2 *************************************************
+                                      2 *********************************************************************
                                       3 *
                                       4 *        JONATHON COLE MARLAR
                                       5 *        ASSIGNMENT 6
@@ -19,33 +19,59 @@ ASSIST/I Version 2.03, Copyright 1984, BDM Software.                          GR
                                      12 *        OUTPUT:   DATA LINES CONTAINING ALL TRANSACTIONS AS WELL AS
                                      13 *                  TOTAL AMOUNTS OF DEPOSITS, WITHDRAWALS, ETC.
                                      14 *
-                                     15 *        BEGINNING HOUSEKEEPING
-000000 90EC D00C            0000C    16          STM   14,12,12(13)
-000004 05C0                          17          BALR  12,0
-000006                               18          USING HERE,12
-000006 50D0 C016            0001C    19 HERE     ST    13,SAVEAREA+4
-00000A 41D0 C012            00018    20          LA    13,SAVEAREA
-                                     21 *
-                                     22 *        MAIN DRIVER
+                                     15 *********************************************************************
+                                     16 *
+                                     17 *        BEGINNING HOUSEKEEPING
+000000 90EC D00C            0000C    18          STM   14,12,12(13)
+000004 05C0                          19          BALR  12,0
+000006                               20          USING HERE,12
+000006 50D0 C036            0003C    21 HERE     ST    13,SAVEAREA+4
+00000A 41D0 C032            00038    22          LA    13,SAVEAREA
                                      23 *
-                                     24 *        END HOUSEKEEPING
-00000E 58D0 C016            0001C    25          L     13,SAVEAREA+4
-000012 98EC D00C            0000C    26          LM    14,12,12(13)
-000016 07FE                          27          BR    14
-000018                               28 SAVEAREA DS    18F
-                                     29 *
-                                     30 *        DECLARE CONSTANTS AND STORAGE
-                                     31 *
-                                     32 *        DECLARE SUBROUTINES
-                                     33 *
-                                     34 *        END OF LINE
-                                     35          END   COLE6
+                                     24 *        MAIN DRIVER
+00000E E000 C07A 000A 00080          25 TOP      XREAD CARD,10
+000014 4740 C022            00028    26          BC    B'0100',BOTTOM
+000018 95F0 C07A      00080          27          CLI   CARD,C'0'
+00001C 4780 C01A            00020    28          BC    B'1000',INITCALL
+000020 45B0 C094            0009A    29 INITCALL BAL   11,INITIAL
+000024 47F0 C008            0000E    30          BC    B'1111',TOP
+000028 45B0 C09C            000A2    31 BOTTOM   BAL   11,PRINTBAL
+                                     32 *
+                                     33 *        END HOUSEKEEPING
+00002C 58D0 C036            0003C    34          L     13,SAVEAREA+4
+000030 98EC D00C            0000C    35          LM    14,12,12(13)
+000034 07FE                          36          BR    14
+000038                               37 SAVEAREA DS    18F
+                                     38 *
+                                     39 *        DECLARE CONSTANTS AND STORAGE
+000080                               40 CARD     DS    CL10
+00008A                               41 BALANCE  DS    PL5
+00008F                               42 OUTAREA  DS    CL11
+                                     43 *
+                                     44 *        DECLARE SUBROUTINES
+                                     45 *        INITIAL
+00009A F248 C084 C07B 0008A 00081    46 INITIAL  PACK  BALANCE(5),CARD+1(9)
+0000A0 07FB                          47          BR    11
+                                     48 *
+                                     49 *        PRINTBAL
+0000A2 D20A C089 C0B2 0008F 000B8    50 PRINTBAL MVC   OUTAREA(11),=X'40202020202020214B2020'
+0000A8 DE0A C089 C084 0008F 0008A    51          ED    OUTAREA(11),BALANCE
+
+                                                                                                                            PAGE 2
+  LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
+
+0000AE E020 C089 000B 0008F          52          XPRNT OUTAREA,11
+0000B4 07FB                          53          BR    11
+                                     54 *        END OF LINE
+                                     55          END   COLE6
+0000B8 4020202020202021                          =X'40202020202020214B2020'
 
 ***   0 STATEMENTS FLAGGED - 0 WARNINGS, 0 ERRORS
 
 *** PROGRAM EXECUTION BEGINNING -
 ANY OUTPUT BEFORE EXECUTION COMPLETE MESSAGE IS PRODUCED BY USER PROGRAM ***
 
+     89.43
 
 *** EXECUTION COMPLETED ***
 
