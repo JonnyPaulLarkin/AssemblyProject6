@@ -26,9 +26,13 @@ TOP      XREAD CARD,10
          BC    B'0100',BOTTOM
          CLI   CARD,C'0'
          BC    B'1000',INITCALL
+         CLI   CARD,C'1'
+         BC    B'1000',DEPOCALL
 INITCALL BAL   11,INITIAL
          BC    B'1111',TOP
-BOTTOM   BAL   11,PRINTBAL
+DEPOCALL BAL   11,DEPOSIT
+         BC    B'1111',TOP
+BOTTOM   XPRNT =C' ENDLOL',7
 *
 *        END HOUSEKEEPING
          L     13,SAVEAREA+4
@@ -38,12 +42,25 @@ SAVEAREA DS    18F
 *
 *        DECLARE CONSTANTS AND STORAGE
 CARD     DS    CL10
+TEMP     DS    1F
 BALANCE  DS    PL5
+PKDINPUT DS    PL5
 OUTAREA  DS    CL11
 *
 *        DECLARE SUBROUTINES
 *        INITIAL
 INITIAL  PACK  BALANCE(5),CARD+1(9)
+         ST    11,TEMP
+         BAL   11,PRINTBAL
+         L     11,TEMP
+         BR    11
+*
+*        DEPOSIT
+DEPOSIT  PACK  PKDINPUT(5),CARD+1(9)
+         AP    BALANCE(5),PKDINPUT(5)
+         ST    11,TEMP
+         BAL   11,PRINTBAL
+         L     11,TEMP
          BR    11
 *
 *        PRINTBAL

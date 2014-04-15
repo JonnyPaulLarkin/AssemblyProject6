@@ -25,46 +25,64 @@ ASSIST/I Version 2.03, Copyright 1984, BDM Software.                          GR
 000000 90EC D00C            0000C    18          STM   14,12,12(13)
 000004 05C0                          19          BALR  12,0
 000006                               20          USING HERE,12
-000006 50D0 C036            0003C    21 HERE     ST    13,SAVEAREA+4
-00000A 41D0 C032            00038    22          LA    13,SAVEAREA
+000006 50D0 C046            0004C    21 HERE     ST    13,SAVEAREA+4
+00000A 41D0 C042            00048    22          LA    13,SAVEAREA
                                      23 *
                                      24 *        MAIN DRIVER
-00000E E000 C07A 000A 00080          25 TOP      XREAD CARD,10
-000014 4740 C022            00028    26          BC    B'0100',BOTTOM
-000018 95F0 C07A      00080          27          CLI   CARD,C'0'
-00001C 4780 C01A            00020    28          BC    B'1000',INITCALL
-000020 45B0 C094            0009A    29 INITCALL BAL   11,INITIAL
-000024 47F0 C008            0000E    30          BC    B'1111',TOP
-000028 45B0 C09C            000A2    31 BOTTOM   BAL   11,PRINTBAL
-                                     32 *
-                                     33 *        END HOUSEKEEPING
-00002C 58D0 C036            0003C    34          L     13,SAVEAREA+4
-000030 98EC D00C            0000C    35          LM    14,12,12(13)
-000034 07FE                          36          BR    14
-000038                               37 SAVEAREA DS    18F
-                                     38 *
-                                     39 *        DECLARE CONSTANTS AND STORAGE
-000080                               40 CARD     DS    CL10
-00008A                               41 BALANCE  DS    PL5
-00008F                               42 OUTAREA  DS    CL11
-                                     43 *
-                                     44 *        DECLARE SUBROUTINES
-                                     45 *        INITIAL
-00009A F248 C084 C07B 0008A 00081    46 INITIAL  PACK  BALANCE(5),CARD+1(9)
-0000A0 07FB                          47          BR    11
-                                     48 *
-                                     49 *        PRINTBAL
-0000A2 D20A C089 C0B2 0008F 000B8    50 PRINTBAL MVC   OUTAREA(11),=X'40202020202020214B2020'
-0000A8 DE0A C089 C084 0008F 0008A    51          ED    OUTAREA(11),BALANCE
+00000E E000 C08A 000A 00090          25 TOP      XREAD CARD,10
+000014 4740 C032            00038    26          BC    B'0100',BOTTOM
+000018 95F0 C08A      00090          27          CLI   CARD,C'0'
+00001C 4780 C022            00028    28          BC    B'1000',INITCALL
+000020 95F1 C08A      00090          29          CLI   CARD,C'1'
+000024 4780 C02A            00030    30          BC    B'1000',DEPOCALL
+000028 45B0 C0B0            000B6    31 INITCALL BAL   11,INITIAL
+00002C 47F0 C008            0000E    32          BC    B'1111',TOP
+000030 45B0 C0C4            000CA    33 DEPOCALL BAL   11,DEPOSIT
+000034 47F0 C008            0000E    34          BC    B'1111',TOP
+000038 E020 C0F2 0007 000F8          35 BOTTOM   XPRNT =C' ENDLOL',7
+                                     36 *
+                                     37 *        END HOUSEKEEPING
+00003E 58D0 C046            0004C    38          L     13,SAVEAREA+4
+000042 98EC D00C            0000C    39          LM    14,12,12(13)
+000046 07FE                          40          BR    14
+000048                               41 SAVEAREA DS    18F
+                                     42 *
+                                     43 *        DECLARE CONSTANTS AND STORAGE
+000090                               44 CARD     DS    CL10
+00009C                               45 TEMP     DS    1F
+0000A0                               46 BALANCE  DS    PL5
+0000A5                               47 PKDINPUT DS    PL5
+0000AA                               48 OUTAREA  DS    CL11
+                                     49 *
+                                     50 *        DECLARE SUBROUTINES
+                                     51 *        INITIAL
 
                                                                                                                             PAGE 2
   LOC  OBJECT CODE    ADDR1 ADDR2   STMT    SOURCE STATEMENT
 
-0000AE E020 C089 000B 0008F          52          XPRNT OUTAREA,11
-0000B4 07FB                          53          BR    11
-                                     54 *        END OF LINE
-                                     55          END   COLE6
-0000B8 4020202020202021                          =X'40202020202020214B2020'
+0000B6 F248 C09A C08B 000A0 00091    52 INITIAL  PACK  BALANCE(5),CARD+1(9)
+0000BC 50B0 C096            0009C    53          ST    11,TEMP
+0000C0 45B0 C0DE            000E4    54          BAL   11,PRINTBAL
+0000C4 58B0 C096            0009C    55          L     11,TEMP
+0000C8 07FB                          56          BR    11
+                                     57 *
+                                     58 *        DEPOSIT
+0000CA F248 C09F C08B 000A5 00091    59 DEPOSIT  PACK  PKDINPUT(5),CARD+1(9)
+0000D0 FA44 C09A C09F 000A0 000A5    60          AP    BALANCE(5),PKDINPUT(5)
+0000D6 50B0 C096            0009C    61          ST    11,TEMP
+0000DA 45B0 C0DE            000E4    62          BAL   11,PRINTBAL
+0000DE 58B0 C096            0009C    63          L     11,TEMP
+0000E2 07FB                          64          BR    11
+                                     65 *
+                                     66 *        PRINTBAL
+0000E4 D20A C0A4 C0F9 000AA 000FF    67 PRINTBAL MVC   OUTAREA(11),=X'40202020202020214B2020'
+0000EA DE0A C0A4 C09A 000AA 000A0    68          ED    OUTAREA(11),BALANCE
+0000F0 E020 C0A4 000B 000AA          69          XPRNT OUTAREA,11
+0000F6 07FB                          70          BR    11
+                                     71 *        END OF LINE
+                                     72          END   COLE6
+0000F8 40C5D5C4D3D6D3                            =C' ENDLOL'
+0000FF 4020202020202021                          =X'40202020202020214B2020'
 
 ***   0 STATEMENTS FLAGGED - 0 WARNINGS, 0 ERRORS
 
@@ -72,6 +90,10 @@ ASSIST/I Version 2.03, Copyright 1984, BDM Software.                          GR
 ANY OUTPUT BEFORE EXECUTION COMPLETE MESSAGE IS PRODUCED BY USER PROGRAM ***
 
      89.43
+     89.44
+    289.44
+    293.94
+ENDLOL
 
 *** EXECUTION COMPLETED ***
 
